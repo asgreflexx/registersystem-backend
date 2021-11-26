@@ -61,11 +61,8 @@ class ProductRestControllerITest {
         void happyPath() throws Exception {
             final ProductDto product = persistProductDto("code");
 
-            final ResultActions resultActions = getProduct(product.getId().toString());
+            final ProductDto productDto = getProductDto(product.getId());
 
-            resultActions.andExpect(status().isOk());
-
-            final ProductDto productDto = JsonMapper.resultToObject(resultActions, PRODUCT_DTO_TYPE_REFERENCE);
             assertEquals(product.getCode(), productDto.getCode());
         }
 
@@ -318,6 +315,32 @@ class ProductRestControllerITest {
 
             resultActions.andExpect(status().isBadRequest());
         }
+
+        @Test
+        void failBecauseOfVersionCollision() throws Exception {
+            final ProductDto productDto = persistProductDto("code");
+            final String content = JsonMapper.objectToString(productDto);
+
+            ResultActions resultActions = saveProduct(content);
+            resultActions.andExpect(status().isOk());
+
+            resultActions = saveProduct(content);
+            resultActions.andExpect(status().isConflict());
+        }
+
+        @Test
+        void saveSuccessfulNoVersionCollision() throws Exception {
+            ProductDto productDto = persistProductDto("code");
+
+            ResultActions resultActions = saveProduct(JsonMapper.objectToString(productDto));
+            resultActions.andExpect(status().isOk());
+
+            productDto = getProductDto(productDto.getId());
+            productDto.setCode("code1");
+
+            resultActions = saveProduct(JsonMapper.objectToString(productDto));
+            resultActions.andExpect(status().isOk());
+        }
     }
 
     @Nested
@@ -436,5 +459,12 @@ class ProductRestControllerITest {
 
     private static String getErrorMessage(String message) {
         return String.format("{'message': '%s'}", message);
+    }
+
+    private ProductDto getProductDto(UUID productId) throws Exception {
+        ResultActions resultActions = getProduct(productId.toString());
+        resultActions.andExpect(status().isOk());
+
+        return JsonMapper.resultToObject(resultActions, PRODUCT_DTO_TYPE_REFERENCE);
     }
 }

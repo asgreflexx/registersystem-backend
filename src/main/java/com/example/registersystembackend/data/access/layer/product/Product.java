@@ -2,6 +2,7 @@ package com.example.registersystembackend.data.access.layer.product;
 
 import com.querydsl.core.annotations.QueryEntity;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -37,6 +38,9 @@ public class Product {
     private double price;
 
     private boolean isDeleted;
+
+    @Version
+    private long version;
 
     public UUID getId() {
         return id;
@@ -98,6 +102,14 @@ public class Product {
         this.price = price;
     }
 
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -125,6 +137,7 @@ public class Product {
                 .add("amount=" + amount)
                 .add("price=" + price)
                 .add("isDeleted=" + isDeleted)
+                .add("version=" + version)
                 .toString();
     }
 }
