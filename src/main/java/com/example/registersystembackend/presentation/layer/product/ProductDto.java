@@ -30,6 +30,8 @@ class ProductDto {
     @Digits(integer = 9, fraction = 2)
     private double price;
 
+    private long version;
+
     public UUID getId() {
         return id;
     }
@@ -78,6 +80,14 @@ class ProductDto {
         this.price = price;
     }
 
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -104,6 +114,7 @@ class ProductDto {
                 .add("foodType=" + foodType)
                 .add("amount=" + amount)
                 .add("price=" + price)
+                .add("version=" + version)
                 .toString();
     }
 }

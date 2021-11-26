@@ -3,6 +3,7 @@ package com.example.registersystembackend.presentation.layer.configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -59,15 +60,23 @@ class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
-    GlobalExceptionResponse handleExceptionInternal(HttpRequestMethodNotSupportedException ex) {
+    GlobalExceptionResponse handleMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
         LOG.warn("The user made an unsupported call", ex);
+        return new GlobalExceptionResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CONFLICT)
+    GlobalExceptionResponse handleOptimisticLockingFailureException(OptimisticLockingFailureException ex) {
+        LOG.warn("There is a collision because the version is wrong ", ex);
         return new GlobalExceptionResponse(ex.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)
     @ResponseBody
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    GlobalExceptionResponse handleExceptionInternal(RuntimeException ex) {
+    GlobalExceptionResponse handleMethodNotSupportedException(RuntimeException ex) {
         LOG.error("Something went wrong", ex);
         return new GlobalExceptionResponse();
     }
